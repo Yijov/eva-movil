@@ -9,14 +9,18 @@ export class Product{
        public cost: number,
        public estimateMonthlyUnitSales: number,
        public taxPercent: number = 18,
-       private pricing:"percentage based"|"cost based"="cost based",
-       revenue:number,
+       private _pricingStrategy:"percentage based"|"cost based"="cost based",
+       public targetRevenue:number,
       ){
-        if(this.pricing==="percentage based"){
-            this.setBasePriceByPercent(revenue)
+        if(this._pricingStrategy==="percentage based"){
+            this.setBasePriceByPercent(targetRevenue)
         }else{
-            this.setBasePriceByCost(revenue)
+            this.setBasePriceByCost(targetRevenue)
         }
+      }
+
+       get PricingStrategy(){
+        return this._pricingStrategy;
       }
 
       get unitTaxAmmount(){
@@ -77,7 +81,7 @@ export class Product{
           cost: this.cost,
           estimateMonthlyUnitSales: this.estimateMonthlyUnitSales,
           taxPercent: this.taxPercent,
-          pricing: this.pricing,
+          PricingStrategy: this._pricingStrategy,
           price: this.price // manually add private field for restoration
         };
       }
@@ -89,7 +93,7 @@ export class Product{
           json.cost,
           json.estimateMonthlyUnitSales,
           json.taxPercent,
-          json.pricing,
+          json.PricingStrategy,
           0 // dummy revenue, we'll overwrite price manually
         );
         product.price = json.price; // manually restore private field

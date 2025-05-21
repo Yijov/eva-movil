@@ -1,52 +1,77 @@
 import { Expense } from "@/models/Expense";
-import React, { useState } from "react";
-import { Button, Modal, StyleSheet, TextInput, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Modal,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import { ThemedText } from "../../../components/ThemedText";
 
 interface ExpenseModalProps {
   visible: boolean;
   onClose: () => void;
-  onAdd: (expense: Expense) => void;
+  onSubmit: (expense: Expense, isEditing: boolean) => void;
+  expenseToEdit?: Expense | null;
 }
 
 export default function ExpenseModal({
   visible,
   onClose,
-  onAdd,
+  onSubmit,
+  expenseToEdit,
 }: ExpenseModalProps) {
   const [name, setName] = useState("");
   const [amount, setAmount] = useState("");
-  const [type, setType] = useState<"service" | "good">("good");
 
-  const handleAdd = () => {
-    const expense = new Expense(undefined, name, parseFloat(amount), type);
-    onAdd(expense);
-    setName("");
-    setAmount("");
-    setType("good");
+  useEffect(() => {
+    if (expenseToEdit) {
+      setName(expenseToEdit.name);
+      setAmount(expenseToEdit.amount.toString());
+   
+    } else {
+      setName("");
+      setAmount("");
+    }
+  }, [expenseToEdit]);
+
+  const handleSubmit = () => {
+    if (!name || isNaN(Number(amount))) return;
+
+    const expense = new Expense(
+      expenseToEdit?.id,
+      name,
+      parseFloat(amount)
+    );
+
+    onSubmit(expense, !!expenseToEdit);
     onClose();
   };
 
   return (
     <Modal visible={visible} animationType="slide">
-      <View style={styles.modal}>
-        <ThemedText type="subtitle">Nuevo Gasto</ThemedText>
-        <TextInput
-          value={name}
-          onChangeText={setName}
-          placeholder="Nombre"
-          style={styles.input}
-        />
+      <View style={styles.container}>
+        <ThemedText type="subtitle">
+          {expenseToEdit ? "Edit Expense" : "New Expense"}
+        </ThemedText>
 
         <TextInput
+          placeholder="Name"
+          value={name}
+          onChangeText={setName}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Amount"
           value={amount}
           onChangeText={setAmount}
-          placeholder="Costo"
           keyboardType="numeric"
           style={styles.input}
         />
+     
 
-        <Button title="Add Expense" onPress={handleAdd} />
+        <Button title={expenseToEdit ? "Update Expense" : "Add Expense"} onPress={handleSubmit} />
         <Button title="Cancel" onPress={onClose} color="gray" />
       </View>
     </Modal>
@@ -54,19 +79,16 @@ export default function ExpenseModal({
 }
 
 const styles = StyleSheet.create({
-  modal: {
+  container: {
     flex: 1,
-    padding: 20,
     justifyContent: "center",
+    padding: 20,
     gap: 15,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#aaa",
+    borderColor: "#999",
     padding: 10,
     borderRadius: 5,
-  },
-  label: {
-    fontWeight: "bold",
   },
 });

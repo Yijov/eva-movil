@@ -1,26 +1,30 @@
 import { Asset } from "@/models/Asset";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-interface Props { assets: Asset[] }
+interface AssetListProps {
+  assets: Asset[];
+  onEdit?: (asset: Asset) => void;
+}
 
-export default function AssetList({ assets }: Props) {
+export default function AssetList({ assets, onEdit }: AssetListProps) {
   return (
     <View>
-      <View style={[styles.row, styles.header]}>
-        <Text style={styles.cell}>Name</Text>
-        <Text style={styles.cell}>Qty</Text>
-        <Text style={styles.cell}>Cost</Text>
+      <View style={styles.header}>
+        <Text style={styles.cell}>Nombre</Text>
+        <Text style={styles.cell}>Costo</Text>
+        <Text style={styles.cell}>Cantidad</Text>
         <Text style={styles.cell}>Total</Text>
       </View>
-
-      {assets.map((a) => (
-        <View key={a.id} style={styles.row}>
-          <Text style={styles.cell}>{a.name}</Text>
-          <Text style={styles.cell}>{a.quantity}</Text>
-          <Text style={styles.cell}>{a.cost.toFixed(2)}</Text>
-          <Text style={styles.cell}>{a.totalCost.toFixed(2)}</Text>
-        </View>
+      {assets.map((asset) => (
+        <Pressable key={asset.id} onPress={() => onEdit?.(asset)}>
+          <View style={styles.row}>
+            <Text style={styles.cell}>{asset.name}</Text>
+            <Text style={styles.cell}>${asset.cost.toFixed(2)}</Text>
+            <Text style={styles.cell}>{asset.quantity}</Text>
+            <Text style={styles.cell}>${asset.totalCost.toFixed(2)}</Text>
+          </View>
+        </Pressable>
       ))}
     </View>
   );
@@ -29,10 +33,17 @@ export default function AssetList({ assets }: Props) {
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    paddingVertical: 8,
+    padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#ccc",
   },
-  cell: { flex: 1, textAlign: "center" },
-  header: { backgroundColor: "#eee", fontWeight: "bold" },
+  cell: {
+    flex: 1,
+    fontSize: 12,
+  },
+  header: {
+    flexDirection: "row",
+    backgroundColor: "#eee",
+    padding: 10,
+  },
 });

@@ -1,171 +1,242 @@
 import { Asset } from "@/models/Asset";
-import { Project } from "@/models/Project";
-import { ProjectRepository } from "@/services/persistence";
-import { useRouter } from "expo-router";
+import { Employee } from "@/models/Employee";
+import { Expense } from "@/models/Expense";
+import { Product } from "@/models/Product";
+import { Project } from "@/models/Project"; // Assuming you have a Project model
 import React, { useState } from "react";
-import { Button, ScrollView, StyleSheet, TextInput, View } from "react-native";
-import { ThemedText } from "../../components/ThemedText";
-import { Employee } from "../../models/Employee";
-import { Expense } from "../../models/Expense";
-import { Product } from "../../models/Product";
+import {
+  Alert,
+  Button,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { ProjectRepository } from "../../services/persistence";
 import AssetModal from "./components/AssetForm";
 import AssetList from "./components/AssetList";
 import EmployeeModal from "./components/EmployeeForm";
 import EmployeeTable from "./components/EmployeeTable";
 import ExpenseModal from "./components/ExpenseForm";
-import ExpenseTable from "./components/ExpenseTable";
+import ExpenseList from "./components/ExpenseTable";
 import ProductModal from "./components/ProductForm";
 import ProductList from "./components/ProductList";
 
 export default function NewProjectScreen() {
-  const router = useRouter();
-  const [name, setName] = useState("");
-  const [assets, setAssets] = useState<Asset[]>([]);
+  const [projectName, setProjectName] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [isAssetModalVisible, setAssetModalVisible] = useState(false);
+
   const [isProductModalVisible, setProductModalVisible] = useState(false);
-  const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
+  const [isAssetModalVisible, setAssetModalVisible] = useState(false);
   const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
+  const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
 
-  const handleAddAsset = (asset: Asset) => {
-    setAssets((prev) => [...prev, asset]);
-    setAssetModalVisible(false);
-  };
+  const [productToEdit, setProductToEdit] = useState<Product | null>(null);
+  const [assetToEdit, setAssetToEdit] = useState<Asset | null>(null);
+  const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
+  const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
 
-  const addProduct = (product: Product) => {
-    setProducts((prev) => [...prev, product]);
+
+ const persistence = new ProjectRepository()
+
+  const addOrUpdateProduct = (product: Product, isEditing: boolean) => {
+    setProducts((prev) =>
+      isEditing ? prev.map((p) => (p.id === product.id ? product : p)) : [...prev, product]
+    );
+    setProductToEdit(null);
     setProductModalVisible(false);
   };
 
-  const addEmployee = (employee: Employee) => {
-    setEmployees((prev) => [...prev, employee]);
-    setEmployeeModalVisible(false);
+  const addOrUpdateAsset = (asset: Asset, isEditing: boolean) => {
+    setAssets((prev) =>
+      isEditing ? prev.map((a) => (a.id === asset.id ? asset : a)) : [...prev, asset]
+    );
+    setAssetToEdit(null);
+    setAssetModalVisible(false);
   };
 
-  const addExpense = (expense: Expense) => {
-    setExpenses((prev) => [...prev, expense]);
+  const addOrUpdateExpense = (expense: Expense, isEditing: boolean) => {
+    setExpenses((prev) =>
+      isEditing ? prev.map((e) => (e.id === expense.id ? expense : e)) : [...prev, expense]
+    );
+    setExpenseToEdit(null);
     setExpenseModalVisible(false);
   };
 
-  const repository = new ProjectRepository();
+  const addOrUpdateEmployee = (employee: Employee, isEditing: boolean) => {
+    setEmployees((prev) =>
+      isEditing ? prev.map((e) => (e.id === employee.id ? employee : e)) : [...prev, employee]
+    );
+    setEmployeeToEdit(null);
+    setEmployeeModalVisible(false);
+  };
 
-  const saveProject = async () => {
-    const project = new Project(
-      undefined,
-      name,
+  const handleSubmit = async () => {
+    if (!projectName.trim()) {
+      Alert.alert("Validation", "Project name is required.");
+      return;
+    }
+
+    const newProject = new Project(
+      undefined, // or generate an ID if needed
+      projectName,
       assets,
       products,
       expenses,
       employees
     );
-    await repository.save(project);
-     router.push(`./overview/${project.id}`);
+    await persistence.save(newProject)
+    Alert.alert("Project Saved", "Your project was saved successfully.");
   };
+
   return (
-    <ScrollView>
-      <View style={styles.innerContainer}>
-        <ThemedText type="title">Nuevo Proyecto</ThemedText>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Create New Project</Text>
 
-        <TextInput
-          placeholder="Project Name"
-          value={name}
-          onChangeText={setName}
-          style={styles.input}
-        />
+      <TextInput
+        placeholder="Project Name"
+        value={projectName}
+        onChangeText={setProjectName}
+        style={styles.input}
+      />
 
-        <Button
-          title="Add Product"
-          onPress={() => setProductModalVisible(true)}
-        />
+      <Text style={styles.sectionTitle}>Products</Text>
+      <Button
+        title="Add Product"
+        onPress={() => {
+          setProductToEdit(null);
+          setProductModalVisible(true);
+        }}
+      />
+      <ProductList
+        products={products}
+        onEdit={(p: Product) => {
+          setProductToEdit(p);
+          setProductModalVisible(true);
+        }}
+      />
 
-        <ProductList products={products} />
+      <Text style={styles.sectionTitle}>Assets</Text>
+      <Button
+        title="Add Asset"
+        onPress={() => {
+          setAssetToEdit(null);
+          setAssetModalVisible(true);
+        }}
+      />
+      <AssetList
+        assets={assets}
+        onEdit={(a: Asset) => {
+          setAssetToEdit(a);
+          setAssetModalVisible(true);
+        }}
+      />
 
-        <Button title="Add Asset" onPress={() => setAssetModalVisible(true)} />
-        <AssetList assets={assets} />
+      <Text style={styles.sectionTitle}>Expenses</Text>
+      <Button
+        title="Add Expense"
+        onPress={() => {
+          setExpenseToEdit(null);
+          setExpenseModalVisible(true);
+        }}
+      />
+      <ExpenseList
+        expenses={expenses}
+        onEdit={(e: Expense) => {
+          setExpenseToEdit(e);
+          setExpenseModalVisible(true);
+        }}
+      />
 
-        <Button
-          title="Add Expense"
-          onPress={() => setExpenseModalVisible(true)}
-        />
-        <ExpenseTable expenses={expenses} />
+      <Text style={styles.sectionTitle}>Employees</Text>
+      <Button
+        title="Add Employee"
+        onPress={() => {
+          setEmployeeToEdit(null);
+          setEmployeeModalVisible(true);
+        }}
+      />
+      <EmployeeTable
+        employees={employees}
+        onEdit={(e: Employee) => {
+          setEmployeeToEdit(e);
+          setEmployeeModalVisible(true);
+        }}
+      />
 
-        <Button
-          title="Add Employee"
-          onPress={() => setEmployeeModalVisible(true)}
-        />
-        <EmployeeTable employees={employees} />
-
-        <Button
-          title="Save Project"
-          disabled={
-            !name ||
-            !assets.length ||
-            !products.length ||
-            !expenses.length ||
-            !employees.length
-          }
-          onPress={saveProject}
-        />
+      <View style={styles.saveButton}>
+        <Button title="Save Project" onPress={handleSubmit} />
       </View>
 
-      {/* ---------- MODALS ---------- */}
+      {/* Modals */}
       <ProductModal
         visible={isProductModalVisible}
-        onClose={() => setProductModalVisible(false)}
-        onAdd={addProduct}
+        onClose={() => {
+          setProductToEdit(null);
+          setProductModalVisible(false);
+        }}
+        onSubmit={addOrUpdateProduct}
+        productToEdit={productToEdit}
       />
       <AssetModal
         visible={isAssetModalVisible}
-        onSubmit={handleAddAsset}
-        onCancel={() => setAssetModalVisible(false)}
-      />
-      <EmployeeModal
-        visible={isEmployeeModalVisible}
-        onClose={() => setEmployeeModalVisible(false)}
-        onAdd={addEmployee}
+        onClose={() => {
+          setAssetToEdit(null);
+          setAssetModalVisible(false);
+        }}
+        onSubmit={addOrUpdateAsset}
+        assetToEdit={assetToEdit}
       />
       <ExpenseModal
         visible={isExpenseModalVisible}
-        onClose={() => setExpenseModalVisible(false)}
-        onAdd={addExpense}
+        onClose={() => {
+          setExpenseToEdit(null);
+          setExpenseModalVisible(false);
+        }}
+        onSubmit={addOrUpdateExpense}
+        expenseToEdit={expenseToEdit}
+      />
+      <EmployeeModal
+        visible={isEmployeeModalVisible}
+        onClose={() => {
+          setEmployeeToEdit(null);
+          setEmployeeModalVisible(false);
+        }}
+        onSubmit={addOrUpdateEmployee}
+        employeeToEdit={employeeToEdit}
       />
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    paddingBottom: 40,
-  },
-  innerContainer: {
+  container: {
     padding: 20,
-    gap: 20,
+    backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 20,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#999",
+    borderColor: "#ccc",
     padding: 10,
     borderRadius: 5,
+    marginBottom: 20,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  sectionTitle: {
+    marginTop: 20,
+    marginBottom: 10,
+    fontSize: 18,
+    fontWeight: "600",
   },
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-  buttonWrapper: {
-    marginBottom: 8,
+  saveButton: {
+    marginVertical: 30,
   },
 });

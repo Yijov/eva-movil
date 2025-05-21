@@ -5,8 +5,7 @@ import { ProjectRepository } from "../services/persistence";
 
 export function useProject() {
   const { id } = useLocalSearchParams();
-
-  console.log(useLocalSearchParams);
+  console.log(id);
   
   const repo = useMemo(() => new ProjectRepository(), []);
   const [project, setProject] = useState<Project | null>(null);

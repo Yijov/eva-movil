@@ -16,7 +16,7 @@ export class Project {
     private products: Product[],
     private expenses: Expense[],
     private employees: Employee[],
-    public contingencyPercent: number = 0.8
+    public contingencyPercent: number = 0.08
   ) {}
 
   //products
@@ -120,7 +120,7 @@ export class Project {
       json.products.map((p: any) => Product.fromJSON(p)),
       json.expenses.map((e: any) => Expense.fromJSON(e)),
       json.employees.map((e: any) => Employee.fromJSON(e)),
-      json.contingencyPercent
+      Number(json.contingencyPercent) 
     );
   }
 

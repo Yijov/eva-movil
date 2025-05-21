@@ -50,7 +50,7 @@ export default function HomeScreen() {
             <Button
               title={project.name}
               onPress={() => {
-               router.push(`./overview/${project.id}`);
+               router.push(`../overview/${project.id}`);
               }}
             />
           </View>

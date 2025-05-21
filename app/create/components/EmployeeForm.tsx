@@ -1,86 +1,84 @@
 import { Employee } from "@/models/Employee";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    Button,
-    Modal,
-    StyleSheet,
-    TextInput,
-    View
+  Button,
+  Modal,
+  StyleSheet,
+  TextInput,
+  View,
 } from "react-native";
 import { ThemedText } from "../../../components/ThemedText";
 
 interface EmployeeModalProps {
   visible: boolean;
   onClose: () => void;
-  onAdd: (employee: Employee) => void;
+  onSubmit: (employee: Employee, isEditing: boolean) => void;
+  employeeToEdit?: Employee | null;
 }
 
 export default function EmployeeModal({
   visible,
   onClose,
-  onAdd,
+  onSubmit,
+  employeeToEdit,
 }: EmployeeModalProps) {
   const [position, setPosition] = useState("");
   const [headCount, setHeadCount] = useState("");
-  const [positionMonthlySalary, setPositionMonthlySalary] = useState("");
-  const [jobDescription, setJobDescription] = useState("-");
-  const [contractType, setContractType] = useState("fijo");
-  const [paymentFrecuency, setPaymentFrecuency] = useState("monthly");
-  const [department, setDepartment] = useState("-");
+  const [monthlySalary, setMonthlySalary] = useState("");
 
-  const resetForm = () => {
-    setPosition("");
-    setHeadCount("");
-    setPositionMonthlySalary("");
-    setJobDescription("-");
-    setContractType("fijo");
-    setPaymentFrecuency("monthly");
-    setDepartment("-");
-  };
+  useEffect(() => {
+    if (employeeToEdit) {
+      setPosition(employeeToEdit.position);
+      setHeadCount(String(employeeToEdit.headCount));
+      setMonthlySalary(employeeToEdit.positionMonthlySalary.toString());
+    } else {
+      setPosition("");
+      setHeadCount("");
+      setMonthlySalary("");
+    }
+  }, [employeeToEdit]);
 
-  const handleAdd = () => {
+  const handleSubmit = () => {
+    if (!position || !headCount || isNaN(Number(monthlySalary))) return;
+
     const employee = new Employee(
-      undefined,
+      employeeToEdit?.id, // Keep ID if editing
       position,
-      parseInt(headCount),
-      parseFloat(positionMonthlySalary),
-      jobDescription,
-      contractType,
-      paymentFrecuency,
-      department
+      Number(headCount),
+      parseFloat(monthlySalary)
     );
-    onAdd(employee);
-    resetForm();
+
+    onSubmit(employee, !!employeeToEdit);
     onClose();
   };
 
   return (
     <Modal visible={visible} animationType="slide">
       <View style={styles.container}>
-        <ThemedText type="subtitle">Nuevo Empleadp</ThemedText>
+        <ThemedText type="subtitle">{employeeToEdit ? "Edit Employee" : "New Employee"}</ThemedText>
+
         <TextInput
-          placeholder="Position"
+          placeholder="Name"
           value={position}
           onChangeText={setPosition}
           style={styles.input}
         />
         <TextInput
-          placeholder="Head Count"
+          placeholder="Role"
           value={headCount}
           onChangeText={setHeadCount}
-          keyboardType="numeric"
           style={styles.input}
         />
         <TextInput
-          placeholder="Monthly Salary"
-          value={positionMonthlySalary}
-          onChangeText={setPositionMonthlySalary}
+          placeholder="Monthly Cost"
+          value={monthlySalary}
+          onChangeText={setMonthlySalary}
           keyboardType="numeric"
           style={styles.input}
         />
-     
-        <Button title="Add Employee" onPress={handleAdd} />
-        <Button title="Cancel" color="#888" onPress={onClose} />
+
+        <Button title={employeeToEdit ? "Update Employee" : "Add Employee"} onPress={handleSubmit} />
+        <Button title="Cancel" onPress={onClose} color="gray" />
       </View>
     </Modal>
   );

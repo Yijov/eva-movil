@@ -1,25 +1,26 @@
-// components/AssetModal.tsx
 import { Asset } from "@/models/Asset";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    Button,
-    Modal,
-    StyleSheet,
-    TextInput,
-    View
+  Button,
+  Modal,
+  StyleSheet,
+  TextInput,
+  View
 } from "react-native";
 import { ThemedText } from "../../../components/ThemedText";
 
 interface AssetModalProps {
   visible: boolean;
-  onSubmit: (asset: Asset) => void;
-  onCancel: () => void;
+  onSubmit: (asset: Asset, isEditing: boolean) => void;
+  onClose: () => void;
+  assetToEdit?: Asset | null;
 }
 
 export default function AssetModal({
   visible,
   onSubmit,
-  onCancel,
+  onClose,
+  assetToEdit,
 }: AssetModalProps) {
   const [name, setName] = useState("");
   const [cost, setCost] = useState("");
@@ -27,14 +28,29 @@ export default function AssetModal({
   const [type, setType] = useState<"fixed" | "current" | "finantial" | "intangible">("fixed");
   const [description, setDescription] = useState("");
 
-  const handleAdd = () => {
+  useEffect(() => {
+    if (assetToEdit) {
+      setName(assetToEdit.name);
+      setCost(assetToEdit.cost.toString());
+      setQuantity(assetToEdit.quantity.toString());
+      setType(assetToEdit.type);
+      setDescription(assetToEdit.description || "");
+    } else {
+      setName("");
+      setCost("");
+      setQuantity("");
+      setType("fixed");
+      setDescription("");
+    }
+  }, [assetToEdit]);
+
+  const handleSubmit = () => {
     if (!name || !cost || !quantity || isNaN(Number(cost)) || isNaN(Number(quantity))) {
-      // Optional: Add validation or show an alert
       return;
     }
 
     const asset = new Asset(
-      undefined,
+      assetToEdit?.id, // Keep ID if editing
       name,
       parseFloat(cost),
       parseInt(quantity),
@@ -42,19 +58,14 @@ export default function AssetModal({
       description
     );
 
-    onSubmit(asset);
-    // Reset form
-    setName("");
-    setCost("");
-    setQuantity("");
-    setType("fixed");
-    setDescription("");
+    onSubmit(asset, !!assetToEdit);
   };
 
   return (
     <Modal visible={visible} animationType="slide">
       <View style={styles.modal}>
-        <ThemedText type="subtitle">Nuevo Activo</ThemedText>
+        <ThemedText type="subtitle">{assetToEdit ? "Edit Asset" : "New Asset"}</ThemedText>
+
         <TextInput
           placeholder="Name"
           value={name}
@@ -75,7 +86,6 @@ export default function AssetModal({
           keyboardType="numeric"
           style={styles.input}
         />
-      
         <TextInput
           placeholder="Description"
           value={description}
@@ -83,8 +93,9 @@ export default function AssetModal({
           multiline
           style={[styles.input, { height: 80 }]}
         />
-        <Button title="Add Asset" onPress={handleAdd} />
-        <Button title="Cancel" onPress={onCancel}  color="gray"  />
+
+        <Button title={assetToEdit ? "Update Asset" : "Add Asset"} onPress={handleSubmit} />
+        <Button title="Cancel" onPress={onClose} color="gray" />
       </View>
     </Modal>
   );
@@ -102,10 +113,5 @@ const styles = StyleSheet.create({
     borderColor: "#999",
     padding: 10,
     borderRadius: 5,
-  },
-
-  label: {
-    fontWeight: "bold",
-    marginTop: 10,
   },
 });

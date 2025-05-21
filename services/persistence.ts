@@ -5,14 +5,25 @@ export class ProjectRepository {
   private storageKey = 'eva_projects';
 
   async getAll(): Promise<Project[]> {
+    try {
     const json = await AsyncStorage.getItem(this.storageKey);
     if (!json) return [];
     const parsed = JSON.parse(json);
     return parsed.map((data: any) => Project.fromJSON(data));
+    } catch (error) {
+      console.log(error);
+      return []
+      
+    }
+  
+    
+  
   }
 
   async save(project: Project): Promise<void> {
-    const projects = await this.getAll();
+    try {
+
+      const projects = await this.getAll();
     const index = projects.findIndex(p => p.name === project.name);
     if (index !== -1) {
       projects[index] = project;
@@ -23,6 +34,13 @@ export class ProjectRepository {
       this.storageKey,
       JSON.stringify(projects.map(p => p.toJSON()))
     );
+      
+    } catch (error) {
+
+      console.log(error);
+      
+    }
+    
   }
 
   async getByName(name: string): Promise<Project | undefined> {
@@ -31,8 +49,13 @@ export class ProjectRepository {
   }
 
    async getById(id: string): Promise<Project | undefined> {
-    const projects = await this.getAll();
+    try {
+      const projects = await this.getAll();
     return projects.find(p => p.id === id);
+    } catch (error) {
+       console.log(error);
+    }
+    
   }
 
   async delete(name: string): Promise<void> {

@@ -1,45 +1,45 @@
 import { Expense } from "@/models/Expense";
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-interface ExpenseTableProps {
+interface ExpenseListProps {
   expenses: Expense[];
+  onEdit?: (expense: Expense) => void;
 }
 
-export default function ExpenseTable({ expenses }: ExpenseTableProps) {
+export default function ExpenseList({ expenses, onEdit }: ExpenseListProps) {
   return (
     <View>
       <View style={styles.header}>
         <Text style={styles.cell}>Name</Text>
         <Text style={styles.cell}>Amount</Text>
-        <Text style={styles.cell}>Type</Text>
       </View>
-      {expenses.map((item) =>  (
-          <View key={item.id} style={styles.row}>
-            <Text style={styles.cell}>{item.name}</Text>
-            <Text style={styles.cell}>{item.amount.toFixed(2)}</Text>
-            <Text style={styles.cell}>{item.type}</Text>
+      {expenses.map((expense) => (
+        <Pressable key={expense.id} onPress={() => onEdit?.(expense)}>
+          <View style={styles.row}>
+            <Text style={styles.cell}>{expense.name}</Text>
+            <Text style={styles.cell}>${expense.amount.toFixed(2)}</Text>
           </View>
-        ))}
-      
+        </Pressable>
+      ))}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    backgroundColor: "#eee",
-    padding: 10,
-  },
   row: {
     flexDirection: "row",
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: "#ccc",
   },
   cell: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 12,
+  },
+  header: {
+    flexDirection: "row",
+    backgroundColor: "#eee",
+    padding: 10,
   },
 });
