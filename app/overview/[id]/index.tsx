@@ -1,17 +1,18 @@
 import { ThemedText } from "@/components/ThemedText";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { Button, ScrollView, StyleSheet, TextInput, View } from "react-native";
 import { useProject } from "../../../hooks/useProject";
+
 
 export default function ProjectOverviewPage() {
   
   const project = useProject();
-  
+  const router = useRouter();
   const [cashFlowMonths, setCashFlowMonths] = useState("12");
   const [budgetMonths, setBudgetMonths] = useState("3");
 
-  if (!project)  {console.log(project) ;
-return null  };
+  if (!project)  {return null  };
 
    const cashFlow = project.getCashFlow(Number(cashFlowMonths));
    const budget = project.getBudget(Number(budgetMonths));
@@ -57,6 +58,13 @@ return null  };
         />
         <Row label="Total" value={`$${budget.totalBudget.toFixed(2)}`} />
       </Section> 
+
+       <Button
+        title="Editar"
+        onPress={() => {
+         router.push(`../edit/${project.id}`);
+        }}
+      />
     </ScrollView>
   );
 }

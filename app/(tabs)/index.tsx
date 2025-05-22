@@ -5,9 +5,10 @@ import { ThemedView } from "@/components/ThemedView";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { Button, StyleSheet, View } from "react-native";
+import { Button, StyleSheet } from "react-native";
 import { Project } from "../../models/Project";
 import { ProjectRepository } from "../../services/persistence";
+import ProjectCard from "./ProjectCard";
 
 export default function HomeScreen() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -46,14 +47,15 @@ export default function HomeScreen() {
 
       <ThemedView style={styles.stepContainer}>
         {projects.map((project) => (
-          <View key={project.id} style={styles.buttonWrapper}>
-            <Button
-              title={project.name}
-              onPress={() => {
-               router.push(`../overview/${project.id}`);
-              }}
-            />
-          </View>
+          <ProjectCard
+            key={project.id}
+            project={project}
+            onDelete={async (id) => {
+              await repo.delete(id); // implement this method in your repo
+              const remaining = await repo.getAll();
+              setProjects(remaining);
+            }}
+          />
         ))}
       </ThemedView>
     </ParallaxScrollView>

@@ -23,12 +23,26 @@ import ExpenseList from "./components/ExpenseTable";
 import ProductModal from "./components/ProductForm";
 import ProductList from "./components/ProductList";
 
-export default function NewProjectScreen() {
-  const [projectName, setProjectName] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+type Props = {
+  initialProject?: Project;
+  isEditing?: boolean;
+};
+
+export default function NewProjectScreen({
+  initialProject,
+  isEditing = false,
+}: Props) {
+  const [projectName, setProjectName] = useState(initialProject?.name ?? "");
+  const [products, setProducts] = useState<Product[]>(
+    initialProject?.products ?? []
+  );
+  const [assets, setAssets] = useState<Asset[]>(initialProject?.assets ?? []);
+  const [expenses, setExpenses] = useState<Expense[]>(
+    initialProject?.expenses ?? []
+  );
+  const [employees, setEmployees] = useState<Employee[]>(
+    initialProject?.employees ?? []
+  );
 
   const [isProductModalVisible, setProductModalVisible] = useState(false);
   const [isAssetModalVisible, setAssetModalVisible] = useState(false);
@@ -40,12 +54,13 @@ export default function NewProjectScreen() {
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
   const [employeeToEdit, setEmployeeToEdit] = useState<Employee | null>(null);
 
-
- const persistence = new ProjectRepository()
+  const persistence = new ProjectRepository();
 
   const addOrUpdateProduct = (product: Product, isEditing: boolean) => {
     setProducts((prev) =>
-      isEditing ? prev.map((p) => (p.id === product.id ? product : p)) : [...prev, product]
+      isEditing
+        ? prev.map((p) => (p.id === product.id ? product : p))
+        : [...prev, product]
     );
     setProductToEdit(null);
     setProductModalVisible(false);
@@ -53,7 +68,9 @@ export default function NewProjectScreen() {
 
   const addOrUpdateAsset = (asset: Asset, isEditing: boolean) => {
     setAssets((prev) =>
-      isEditing ? prev.map((a) => (a.id === asset.id ? asset : a)) : [...prev, asset]
+      isEditing
+        ? prev.map((a) => (a.id === asset.id ? asset : a))
+        : [...prev, asset]
     );
     setAssetToEdit(null);
     setAssetModalVisible(false);
@@ -61,7 +78,9 @@ export default function NewProjectScreen() {
 
   const addOrUpdateExpense = (expense: Expense, isEditing: boolean) => {
     setExpenses((prev) =>
-      isEditing ? prev.map((e) => (e.id === expense.id ? expense : e)) : [...prev, expense]
+      isEditing
+        ? prev.map((e) => (e.id === expense.id ? expense : e))
+        : [...prev, expense]
     );
     setExpenseToEdit(null);
     setExpenseModalVisible(false);
@@ -69,7 +88,9 @@ export default function NewProjectScreen() {
 
   const addOrUpdateEmployee = (employee: Employee, isEditing: boolean) => {
     setEmployees((prev) =>
-      isEditing ? prev.map((e) => (e.id === employee.id ? employee : e)) : [...prev, employee]
+      isEditing
+        ? prev.map((e) => (e.id === employee.id ? employee : e))
+        : [...prev, employee]
     );
     setEmployeeToEdit(null);
     setEmployeeModalVisible(false);
@@ -81,21 +102,27 @@ export default function NewProjectScreen() {
       return;
     }
 
-    const newProject = new Project(
-      undefined, // or generate an ID if needed
+    const project = new Project(
+      initialProject?.id || undefined,
       projectName,
       assets,
       products,
       expenses,
       employees
     );
-    await persistence.save(newProject)
-    Alert.alert("Project Saved", "Your project was saved successfully.");
+
+    await persistence.save(project);
+    Alert.alert(
+      "Project Saved",
+      isEditing ? "Changes saved successfully." : "New project created."
+    );
   };
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>Create New Project</Text>
+      <Text style={styles.title}>
+        {isEditing ? "Edit Project" : "Create New Project"}
+      </Text>
 
       <TextInput
         placeholder="Project Name"
@@ -169,7 +196,10 @@ export default function NewProjectScreen() {
       />
 
       <View style={styles.saveButton}>
-        <Button title="Save Project" onPress={handleSubmit} />
+        <Button
+          title={isEditing ? "Save Changes" : "Save Project"}
+          onPress={handleSubmit}
+        />
       </View>
 
       {/* Modals */}

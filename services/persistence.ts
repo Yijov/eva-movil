@@ -21,27 +21,32 @@ export class ProjectRepository {
   }
 
   async save(project: Project): Promise<void> {
+  const maxRetries = 4;
+  let attempt = 0;
+  let success = false;
+
+  while (attempt < maxRetries && !success) {
     try {
-
       const projects = await this.getAll();
-    const index = projects.findIndex(p => p.name === project.name);
-    if (index !== -1) {
-      projects[index] = project;
-    } else {
-      projects.push(project);
-    }
-    await AsyncStorage.setItem(
-      this.storageKey,
-      JSON.stringify(projects.map(p => p.toJSON()))
-    );
-      
-    } catch (error) {
+      const index = projects.findIndex((p) => p.id === project.id);
+      if (index !== -1) {
+        projects[index] = project;
+      } else {
+        projects.push(project);
+      }
 
-      console.log(error);
-      
+      const json = JSON.stringify(projects.map((p) => p.toJSON()));
+      await AsyncStorage.setItem(this.storageKey, json);
+
+      success = true; // Exit loop
+    } catch (error) {
+      console.error("Save attempt failed:", error);
+      attempt++;
+      if (attempt === maxRetries) throw new Error("Failed to save project after retries.");
     }
-    
   }
+}
+
 
   async getByName(name: string): Promise<Project | undefined> {
     const projects = await this.getAll();
@@ -58,8 +63,8 @@ export class ProjectRepository {
     
   }
 
-  async delete(name: string): Promise<void> {
-    const projects = (await this.getAll()).filter(p => p.name !== name);
+  async delete(id: string): Promise<void> {
+    const projects = (await this.getAll()).filter(p => p.id !== id);
     await AsyncStorage.setItem(
       this.storageKey,
       JSON.stringify(projects.map(p => p.toJSON()))

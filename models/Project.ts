@@ -12,10 +12,10 @@ export class Project {
   constructor(
     public id: string = generateUniqueString(),
     public name: string,
-    private assets: Asset[],
-    private products: Product[],
-    private expenses: Expense[],
-    private employees: Employee[],
+    public assets: Asset[],
+    public products: Product[],
+    public expenses: Expense[],
+    public employees: Employee[],
     public contingencyPercent: number = 0.08
   ) {}
 
