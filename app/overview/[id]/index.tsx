@@ -12,26 +12,28 @@ export default function ProjectOverviewPage() {
   const [cashFlowMonths, setCashFlowMonths] = useState("12");
   const [budgetMonths, setBudgetMonths] = useState("3");
 
-  if (!project)  {return null  };
+  if (!project)  {
+   return null  };
 
    const cashFlow = project.getCashFlow(Number(cashFlowMonths));
    const budget = project.getBudget(Number(budgetMonths));
    const roi = project.getROI();
-  
+   const IsProjectProfitable= !Number.isNaN(roi.investment)
    const equilibriumUnits = project.getEquilibriumMetrics().monthlyEquilibriumUnits*Number(cashFlowMonths);
    const equilibriumAmount = project.getEquilibriumMetrics().monthlyEquilibriumAmount* Number(cashFlowMonths);
-
+   
+    
   return (
     <ScrollView style={styles.container}>
       {/* Info del proyecto */}
-      <ThemedText type="title">Proyecto {project.name.toUpperCase()}</ThemedText>
+      <ThemedText type="title">{project.name.toUpperCase()}</ThemedText>
 
       {/* ROI */}
        <Section title="KPI">
         <Row label="Tiempo de retorno" value={roi.time} />
-        <Row label="Inversión Inicial" value={`$${Number(roi.investment).toFixed(2)}`} />
-        <Row label="Unidades equ. mensual" value={Math.round(equilibriumUnits)} />
-        <Row label="Monto equ. mensual" value={`$${equilibriumAmount.toFixed(2)}`} />
+        <Row label="Inversión Inicial" value={IsProjectProfitable ? `$${ Number(roi.investment)?.toFixed(2)}`: roi.investment} />
+        <Row label="Unidades equ. mensual" value={IsProjectProfitable ? Math.round(equilibriumUnits): "n/a"} />
+        <Row label="Monto equ. mensual" value={IsProjectProfitable ? `$${equilibriumAmount.toFixed(2)}` : "n/a"} />
       </Section> 
 
       {/* Cash Flow */}
@@ -40,7 +42,7 @@ export default function ProjectOverviewPage() {
         <Row label="Ventas" value={`$${cashFlow.sales.toFixed(2)}`} />
         <Row label="Costo de ventas" value={`$${cashFlow.salesCost.toFixed(2)}`} />
         <Row label="Impuesto" value={`$${cashFlow.tax.toFixed(2)}`} />
-        <Row label="Gastos Fijos" value={`$${cashFlow.expenses.toFixed(2)}`} />
+        <Row label="Gastos" value={`$${cashFlow.expenses.toFixed(2)}`} />
         <Row label="Ingreso Neto" value={`$${cashFlow.netIncome.toFixed(2)}`} />
       </Section> 
 
@@ -50,7 +52,7 @@ export default function ProjectOverviewPage() {
         <InputRow label="Meses" value={budgetMonths} onChangeText={setBudgetMonths} />
         <Row label="Capital de producción" value={`$${budget.productionCapital.toFixed(2)}`} />
         <Row label="Sueldos" value={`$${budget.payroll.toFixed(2)}`} />
-        <Row label="Gastos" value={`$${budget.expenses.toFixed(2)}`} />
+        <Row label="Gastos Fijos" value={`$${budget.expenses.toFixed(2)}`} />
         <Row label="Capital de activos" value={`$${budget.assetsCapital.toFixed(2)}`} />
         <Row
           label={`Contingencia (${project.contingencyPercent * 100}%)`}

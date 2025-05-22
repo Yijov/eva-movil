@@ -1,5 +1,5 @@
-import { Budget } from "./Budget"
-import { CashFlow } from "./CashFlow"
+import { Budget } from "./Budget";
+import { CashFlow } from "./CashFlow";
 
 export class Roi{
     public time:string|number
@@ -14,9 +14,10 @@ export class Roi{
     if (moneyFlow <= 0) {
         this.time= "No rentable";
         this.investment= "n/a";
-      }
+   
+      }else{
 
-      while (negativeInvestment < 0) {
+         while (negativeInvestment < 0) {
         lastRemainer = negativeInvestment;
         lastFlow = moneyFlow;
         negativeInvestment += moneyFlow;
@@ -29,5 +30,8 @@ export class Roi{
       let lastMonths = Math.floor(((lastRemainer * -1) / lastFlow) * 12);
       this.time= `${spectedReturnTimeY} years and ${lastMonths} months`;
       this.investment= investment.totalBudget;
+      }
+
+     
     }
 }

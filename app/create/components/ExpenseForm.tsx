@@ -53,17 +53,17 @@ export default function ExpenseModal({
     <Modal visible={visible} animationType="slide">
       <View style={styles.container}>
         <ThemedText type="subtitle">
-          {expenseToEdit ? "Edit Expense" : "New Expense"}
+          {expenseToEdit ? "Editar Gasto" : "Nuevo Gasto"}
         </ThemedText>
 
         <TextInput
-          placeholder="Name"
+          placeholder="Nombre"
           value={name}
           onChangeText={setName}
           style={styles.input}
         />
         <TextInput
-          placeholder="Amount"
+          placeholder="Costo"
           value={amount}
           onChangeText={setAmount}
           keyboardType="numeric"
@@ -71,7 +71,7 @@ export default function ExpenseModal({
         />
      
 
-        <Button title={expenseToEdit ? "Update Expense" : "Add Expense"} onPress={handleSubmit} />
+        <Button title={expenseToEdit ? "Actualizar Gasto" : "Agregar Gasto"} onPress={handleSubmit} />
         <Button title="Cancel" onPress={onClose} color="gray" />
       </View>
     </Modal>

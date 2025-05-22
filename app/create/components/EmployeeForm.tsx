@@ -55,30 +55,31 @@ export default function EmployeeModal({
   return (
     <Modal visible={visible} animationType="slide">
       <View style={styles.container}>
-        <ThemedText type="subtitle">{employeeToEdit ? "Edit Employee" : "New Employee"}</ThemedText>
+        <ThemedText type="subtitle">{employeeToEdit ? "Editar Empleado" : "Nuevo Empleado"}</ThemedText>
 
         <TextInput
-          placeholder="Name"
+          placeholder="Nombre de la posicion"
           value={position}
           onChangeText={setPosition}
           style={styles.input}
         />
         <TextInput
-          placeholder="Role"
+          placeholder="Cantidad de posiciones"
           value={headCount}
+          keyboardType="numeric"
           onChangeText={setHeadCount}
           style={styles.input}
         />
         <TextInput
-          placeholder="Monthly Cost"
+          placeholder="Salario mensual"
           value={monthlySalary}
           onChangeText={setMonthlySalary}
           keyboardType="numeric"
           style={styles.input}
         />
 
-        <Button title={employeeToEdit ? "Update Employee" : "Add Employee"} onPress={handleSubmit} />
-        <Button title="Cancel" onPress={onClose} color="gray" />
+        <Button title={employeeToEdit ? "Actualizar Empleado" : "Agregar Empleado"} onPress={handleSubmit} />
+        <Button title="Cancelar" onPress={onClose} color="gray" />
       </View>
     </Modal>
   );

@@ -82,6 +82,7 @@ export class Product{
           estimateMonthlyUnitSales: this.estimateMonthlyUnitSales,
           taxPercent: this.taxPercent,
           PricingStrategy: this._pricingStrategy,
+          targetRevenue:this.targetRevenue,
           price: this.price // manually add private field for restoration
         };
       }
@@ -94,7 +95,7 @@ export class Product{
           json.estimateMonthlyUnitSales,
           json.taxPercent,
           json.PricingStrategy,
-          0 // dummy revenue, we'll overwrite price manually
+          json.targetRevenue
         );
         product.price = json.price; // manually restore private field
         return product;

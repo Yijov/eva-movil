@@ -64,38 +64,38 @@ export default function AssetModal({
   return (
     <Modal visible={visible} animationType="slide">
       <View style={styles.modal}>
-        <ThemedText type="subtitle">{assetToEdit ? "Edit Asset" : "New Asset"}</ThemedText>
+        <ThemedText type="subtitle">{assetToEdit ? "Editar Activo" : "Nuevo Activo"}</ThemedText>
 
         <TextInput
-          placeholder="Name"
+          placeholder="Nombre"
           value={name}
           onChangeText={setName}
           style={styles.input}
         />
         <TextInput
-          placeholder="Cost"
+          placeholder="Costo"
           value={cost}
           onChangeText={setCost}
           keyboardType="numeric"
           style={styles.input}
         />
         <TextInput
-          placeholder="Quantity"
+          placeholder="Cantidad"
           value={quantity}
           onChangeText={setQuantity}
           keyboardType="numeric"
           style={styles.input}
         />
         <TextInput
-          placeholder="Description"
+          placeholder="Descripción (opcional)"
           value={description}
           onChangeText={setDescription}
           multiline
           style={[styles.input, { height: 80 }]}
         />
 
-        <Button title={assetToEdit ? "Update Asset" : "Add Asset"} onPress={handleSubmit} />
-        <Button title="Cancel" onPress={onClose} color="gray" />
+        <Button title={assetToEdit ? "Actualizar Asset" : "Agregar Asset"} onPress={handleSubmit} />
+        <Button title="Cancelar" onPress={onClose} color="gray" />
       </View>
     </Modal>
   );

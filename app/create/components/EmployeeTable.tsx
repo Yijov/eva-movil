@@ -11,9 +11,9 @@ export default function EmployeeTable({ employees, onEdit }: EmployeeListProps) 
   return (
     <View>
       <View style={styles.header}>
-        <Text style={styles.cell}>Position</Text>
+        <Text style={styles.cell}>Posición</Text>
         <Text style={styles.cell}>Head Count</Text>
-        <Text style={styles.cell}>Salary</Text>
+        <Text style={styles.cell}>Salario</Text>
       </View>
       {employees.map((employee) => (
         <Pressable key={employee.id} onPress={() => onEdit?.(employee)}>

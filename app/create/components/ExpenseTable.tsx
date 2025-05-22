@@ -11,8 +11,8 @@ export default function ExpenseList({ expenses, onEdit }: ExpenseListProps) {
   return (
     <View>
       <View style={styles.header}>
-        <Text style={styles.cell}>Name</Text>
-        <Text style={styles.cell}>Amount</Text>
+        <Text style={styles.cell}>Nombre</Text>
+        <Text style={styles.cell}>Costo</Text>
       </View>
       {expenses.map((expense) => (
         <Pressable key={expense.id} onPress={() => onEdit?.(expense)}>

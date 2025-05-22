@@ -21,11 +21,11 @@ export default function ProductModal({ visible, onClose, onSubmit, productToEdit
   useEffect(() => {
     if (productToEdit) {
       setName(productToEdit.name);
-      setCost(productToEdit.cost.toString());
-      setEstimateMonthlyUnitSales(productToEdit.estimateMonthlyUnitSales.toString());
-      setTaxPercent(productToEdit.taxPercent.toString());
+      setCost(productToEdit.cost?.toString());
+      setEstimateMonthlyUnitSales(productToEdit.estimateMonthlyUnitSales?.toString());
+      setTaxPercent(productToEdit.taxPercent?.toString());
       setPricingStrategy(productToEdit.PricingStrategy);
-      seTargetRevenue(productToEdit.targetRevenue.toString());
+      seTargetRevenue(productToEdit.targetRevenue?.toString());
     } else {
       resetForm();
     }
@@ -58,17 +58,17 @@ export default function ProductModal({ visible, onClose, onSubmit, productToEdit
   return (
     <Modal visible={visible} animationType="slide">
       <View style={styles.container}>
-        <ThemedText type="subtitle">{productToEdit ? "Edit" : "New"} Product</ThemedText>
-        <TextInput placeholder="Product Name" value={name} onChangeText={setName} style={styles.input} />
-        <TextInput placeholder="Cost" value={cost} onChangeText={setCost} keyboardType="numeric" style={styles.input} />
-        <TextInput placeholder="Monthly Unit Sales" value={estimateMonthlyUnitSales} onChangeText={setEstimateMonthlyUnitSales} keyboardType="numeric" style={styles.input} />
-        <TextInput placeholder="Tax Percent" value={taxPercent} onChangeText={setTaxPercent} keyboardType="numeric" style={styles.input} />
+        <ThemedText type="subtitle">{productToEdit ? "Editar" : "Nuevo"} Producta</ThemedText>
+        <TextInput placeholder="Nombre del producto" value={name} onChangeText={setName} style={styles.input} />
+        <TextInput placeholder="Costo" value={cost} onChangeText={setCost} keyboardType="numeric" style={styles.input} />
+        <TextInput placeholder="Estimado de venta mensual" value={estimateMonthlyUnitSales} onChangeText={setEstimateMonthlyUnitSales} keyboardType="numeric" style={styles.input} />
+        <TextInput placeholder="% de impuesto" value={taxPercent} onChangeText={setTaxPercent} keyboardType="numeric" style={styles.input} />
         <TextInput placeholder={pricingStrategy === "percentage based" ? "Target Margin (%)" : "Target Margin ($)"} value={targetRevenue} onChangeText={seTargetRevenue} keyboardType="numeric" style={styles.input} />
         <View style={styles.toggleContainer}>
-          <Button title="Cost Based" color={pricingStrategy === "cost based" ? "#007AFF" : "#ccc"} onPress={() => setPricingStrategy("cost based")} />
-          <Button title="Percentage Based" color={pricingStrategy === "percentage based" ? "#007AFF" : "#ccc"} onPress={() => setPricingStrategy("percentage based")} />
+          <Button title="costo + ganacia" color={pricingStrategy === "cost based" ? "#007AFF" : "#ccc"} onPress={() => setPricingStrategy("cost based")} />
+          <Button title="Percentage del precio" color={pricingStrategy === "percentage based" ? "#007AFF" : "#ccc"} onPress={() => setPricingStrategy("percentage based")} />
         </View>
-        <Button title={productToEdit ? "Update Product" : "Add Product"} onPress={handleSubmit} />
+        <Button title={productToEdit ? "Actualizar Product" : "Agregar Product"} onPress={handleSubmit} />
         <Button title="Cancel" color="#888" onPress={onClose} />
       </View>
     </Modal>

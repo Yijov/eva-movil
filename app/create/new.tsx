@@ -48,7 +48,6 @@ export default function NewProjectScreen({
   const [isAssetModalVisible, setAssetModalVisible] = useState(false);
   const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
   const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
-
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [assetToEdit, setAssetToEdit] = useState<Asset | null>(null);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
@@ -98,7 +97,7 @@ export default function NewProjectScreen({
 
   const handleSubmit = async () => {
     if (!projectName.trim()) {
-      Alert.alert("Validation", "Project name is required.");
+      Alert.alert("Validation", "El nombre del proyecto es requerido.");
       return;
     }
 
@@ -113,27 +112,27 @@ export default function NewProjectScreen({
 
     await persistence.save(project);
     Alert.alert(
-      "Project Saved",
-      isEditing ? "Changes saved successfully." : "New project created."
+      "Projecta Guardado",
+      isEditing ? "Cambios guardados exitosamente." : "Nuevo proyecto creado."
     );
   };
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>
-        {isEditing ? "Edit Project" : "Create New Project"}
+        {isEditing ? "Editar Proyecto" : "Crear nuevo proyecto"}
       </Text>
 
       <TextInput
-        placeholder="Project Name"
+        placeholder="Nombre del proyecto"
         value={projectName}
         onChangeText={setProjectName}
         style={styles.input}
       />
 
-      <Text style={styles.sectionTitle}>Products</Text>
+      <Text style={styles.sectionTitle}>Productos</Text>
       <Button
-        title="Add Product"
+        title="Agregar Producto"
         onPress={() => {
           setProductToEdit(null);
           setProductModalVisible(true);
@@ -147,9 +146,9 @@ export default function NewProjectScreen({
         }}
       />
 
-      <Text style={styles.sectionTitle}>Assets</Text>
+      <Text style={styles.sectionTitle}>Activos</Text>
       <Button
-        title="Add Asset"
+        title="Agregar Activo"
         onPress={() => {
           setAssetToEdit(null);
           setAssetModalVisible(true);
@@ -163,9 +162,9 @@ export default function NewProjectScreen({
         }}
       />
 
-      <Text style={styles.sectionTitle}>Expenses</Text>
+      <Text style={styles.sectionTitle}>Gastos</Text>
       <Button
-        title="Add Expense"
+        title="Agregar Gasto"
         onPress={() => {
           setExpenseToEdit(null);
           setExpenseModalVisible(true);
@@ -179,9 +178,9 @@ export default function NewProjectScreen({
         }}
       />
 
-      <Text style={styles.sectionTitle}>Employees</Text>
+      <Text style={styles.sectionTitle}>Empleados</Text>
       <Button
-        title="Add Employee"
+        title="Agregar Empleado"
         onPress={() => {
           setEmployeeToEdit(null);
           setEmployeeModalVisible(true);
@@ -197,7 +196,14 @@ export default function NewProjectScreen({
 
       <View style={styles.saveButton}>
         <Button
-          title={isEditing ? "Save Changes" : "Save Project"}
+          disabled={
+            !expenses.length ||
+            !products.length ||
+            !assets.length ||
+            !employees.length ||
+            !projectName
+          }
+          title={isEditing ? "Guardar Cambios" : "Guardar Proyecto"}
           onPress={handleSubmit}
         />
       </View>
