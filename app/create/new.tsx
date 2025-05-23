@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ProjectRepository } from "../../services/persistence";
 import AssetModal from "./components/AssetForm";
 import AssetList from "./components/AssetList";
@@ -33,23 +34,20 @@ export default function NewProjectScreen({
   initialProject,
   isEditing = false,
 }: Props) {
-  const router=useRouter();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+
   const [projectName, setProjectName] = useState(initialProject?.name ?? "");
-  const [products, setProducts] = useState<Product[]>(
-    initialProject?.products ?? []
-  );
+  const [products, setProducts] = useState<Product[]>(initialProject?.products ?? []);
   const [assets, setAssets] = useState<Asset[]>(initialProject?.assets ?? []);
-  const [expenses, setExpenses] = useState<Expense[]>(
-    initialProject?.expenses ?? []
-  );
-  const [employees, setEmployees] = useState<Employee[]>(
-    initialProject?.employees ?? []
-  );
+  const [expenses, setExpenses] = useState<Expense[]>(initialProject?.expenses ?? []);
+  const [employees, setEmployees] = useState<Employee[]>(initialProject?.employees ?? []);
 
   const [isProductModalVisible, setProductModalVisible] = useState(false);
   const [isAssetModalVisible, setAssetModalVisible] = useState(false);
   const [isExpenseModalVisible, setExpenseModalVisible] = useState(false);
   const [isEmployeeModalVisible, setEmployeeModalVisible] = useState(false);
+
   const [productToEdit, setProductToEdit] = useState<Product | null>(null);
   const [assetToEdit, setAssetToEdit] = useState<Asset | null>(null);
   const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null);
@@ -58,116 +56,91 @@ export default function NewProjectScreen({
   const persistence = new ProjectRepository();
 
   const addOrUpdateProduct = (product: Product, isEditing: boolean) => {
-    setProducts((prev) =>
-      isEditing
-        ? prev.map((p) => (p.id === product.id ? product : p))
-        : [...prev, product]
+    setProducts(prev =>
+      isEditing ? prev.map(p => (p.id === product.id ? product : p)) : [...prev, product]
     );
     setProductToEdit(null);
     setProductModalVisible(false);
   };
 
   const addOrUpdateAsset = (asset: Asset, isEditing: boolean) => {
-    setAssets((prev) =>
-      isEditing
-        ? prev.map((a) => (a.id === asset.id ? asset : a))
-        : [...prev, asset]
+    setAssets(prev =>
+      isEditing ? prev.map(a => (a.id === asset.id ? asset : a)) : [...prev, asset]
     );
     setAssetToEdit(null);
     setAssetModalVisible(false);
   };
 
   const addOrUpdateExpense = (expense: Expense, isEditing: boolean) => {
-    setExpenses((prev) =>
-      isEditing
-        ? prev.map((e) => (e.id === expense.id ? expense : e))
-        : [...prev, expense]
+    setExpenses(prev =>
+      isEditing ? prev.map(e => (e.id === expense.id ? expense : e)) : [...prev, expense]
     );
     setExpenseToEdit(null);
     setExpenseModalVisible(false);
   };
 
   const addOrUpdateEmployee = (employee: Employee, isEditing: boolean) => {
-    setEmployees((prev) =>
-      isEditing
-        ? prev.map((e) => (e.id === employee.id ? employee : e))
-        : [...prev, employee]
+    setEmployees(prev =>
+      isEditing ? prev.map(e => (e.id === employee.id ? employee : e)) : [...prev, employee]
     );
     setEmployeeToEdit(null);
     setEmployeeModalVisible(false);
   };
 
-    const handleRemove= (item:Asset|Product|Employee|Expense) => {
-        Alert.alert(
-          "Delete Project",
-          `Are you sure you want to delete this item?`,
-          [
-            { text: "Cancel", style: "cancel" },
-            {
-              text: "Delete",
-              style: "destructive",
-              onPress: () => {
-                if(item instanceof Asset){
-                  const filtered= assets.filter(a=> a.id !== item.id)
-                    setAssets(filtered)
-                }
-
-                 if(item instanceof Product){
-                  const filtered= products.filter(a=> a.id !== item.id)
-                  setProducts(filtered)
-                }
-
-                if(item instanceof Employee){
-                  const filtered= employees.filter(a=> a.id !== item.id)
-                  setEmployees(filtered)
-                }
-
-                if(item instanceof Expense){
-                  const filtered= expenses.filter(a=> a.id !== item.id)
-                  setExpenses(filtered)
-                }
-             
-              },
-            },
-          ]
-        );
-      };
-
-const handleSubmit = async () => {
-  if (!projectName.trim()) {
-    Alert.alert("Validation", "El nombre del proyecto es requerido.");
-    return;
-  }
-
-  const project = new Project(
-    initialProject?.id || undefined,
-    projectName,
-    assets,
-    products,
-    expenses,
-    employees
-  );
-
-  await persistence.save(project);
-
-  Alert.alert(
-    "Proyecto Guardado",
-    isEditing ? "Cambios guardados exitosamente." : "Nuevo proyecto creado.",
-    [
+  const handleRemove = (item: Asset | Product | Employee | Expense) => {
+    Alert.alert("Delete Project", "Are you sure you want to delete this item?", [
+      { text: "Cancel", style: "cancel" },
       {
-        text: "OK",
+        text: "Delete",
+        style: "destructive",
         onPress: () => {
-          // ✅ Your follow-up function here
-          router.push(`../overview/${project.id}`);
-          // You can navigate, reset state, etc.
+          if (item instanceof Asset) {
+            setAssets(prev => prev.filter(a => a.id !== item.id));
+          } else if (item instanceof Product) {
+            setProducts(prev => prev.filter(p => p.id !== item.id));
+          } else if (item instanceof Employee) {
+            setEmployees(prev => prev.filter(e => e.id !== item.id));
+          } else if (item instanceof Expense) {
+            setExpenses(prev => prev.filter(e => e.id !== item.id));
+          }
         },
       },
-    ]
-  );
-};
+    ]);
+  };
+
+  const handleSubmit = async () => {
+    if (!projectName.trim()) {
+      Alert.alert("Validation", "El nombre del proyecto es requerido.");
+      return;
+    }
+
+    const project = new Project(
+      initialProject?.id || undefined,
+      projectName,
+      assets,
+      products,
+      expenses,
+      employees
+    );
+
+    await persistence.save(project);
+
+    Alert.alert(
+      "Proyecto Guardado",
+      isEditing ? "Cambios guardados exitosamente." : "Nuevo proyecto creado.",
+      [
+        {
+          text: "OK",
+          onPress: () => {
+            router.push(`../overview/${project.id}`);
+          },
+        },
+      ]
+    );
+  };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView contentContainerStyle={{ paddingBottom: 100 }} style={styles.container}>
       <Text style={styles.title}>
         {isEditing ? "Editar Proyecto" : "Crear nuevo proyecto"}
       </Text>
@@ -255,8 +228,8 @@ const handleSubmit = async () => {
         </TouchableOpacity>
       </View>
       <EmployeeTable
-        onDelete={handleRemove}
         employees={employees}
+        onDelete={handleRemove}
         onEdit={(e: Employee) => {
           setEmployeeToEdit(e);
           setEmployeeModalVisible(true);
@@ -264,7 +237,7 @@ const handleSubmit = async () => {
       />
 
       {/* Botón Guardar */}
-      <View style={styles.saveButton}>
+      <View style={[styles.saveButton, { paddingBottom: insets.bottom + 20 }]}>
         <TouchableOpacity
           onPress={handleSubmit}
           disabled={
@@ -370,7 +343,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   saveButton: {
-    marginVertical: 30,
+    marginTop: 30,
     alignItems: "center",
   },
   saveButtonWrapper: {
