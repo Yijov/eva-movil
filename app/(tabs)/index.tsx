@@ -7,9 +7,9 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 import { Button, StyleSheet } from "react-native";
+import ProjectCard from "../../components/ProjectCard";
 import { Project } from "../../models/Project";
 import { ProjectRepository } from "../../services/persistence";
-import ProjectCard from "./ProjectCard";
 
 export default function HomeScreen() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -30,7 +30,7 @@ export default function HomeScreen() {
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
         <Image
-          source={require("@/assets/images/partial-react-logo.png")}
+          source={require("@/assets/images/banner2.jpg")}
           style={styles.reactLogo}
         />
       }
@@ -76,8 +76,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
+    height: 178+50,
+    width: 290+70,
     bottom: 0,
     left: 0,
     position: "absolute",

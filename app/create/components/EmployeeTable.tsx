@@ -13,8 +13,9 @@ export default function EmployeeTable({ employees, onEdit, onDelete }: EmployeeL
     <View>
       <View style={styles.header}>
         <Text style={styles.cell}>Posición</Text>
-        <Text style={styles.cell}>Head Count</Text>
+        <Text style={styles.cell}>Cantidad</Text>
         <Text style={styles.cell}>Salario</Text>
+        <Text style={styles.cell}>Total</Text>
       </View>
       {employees.map((employee) => (
         <Pressable key={employee.id} onLongPress={()=> onDelete?.(employee)} onPress={() => onEdit?.(employee)}>
@@ -22,6 +23,7 @@ export default function EmployeeTable({ employees, onEdit, onDelete }: EmployeeL
             <Text style={styles.cell}>{employee.position}</Text>
             <Text style={styles.cell}>{employee.headCount}</Text>
             <Text style={styles.cell}>${employee.positionMonthlySalary.toFixed(2)}</Text>
+            <Text style={styles.cell}>${(employee.positionMonthlySalary *  employee.headCount).toFixed(2)}</Text>
           </View>
         </Pressable>
       ))}

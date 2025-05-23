@@ -39,7 +39,7 @@ export default function ProjectOverviewPage() {
   const cashFlow = project.getCashFlow(Number(cashFlowMonths));
   const budget = project.getBudget(Number(budgetMonths));
   const roi = project.getROI(Number(budgetMonths));
-  const IsProjectProfitable = !Number.isNaN(roi.investment);
+  const IsProjectProfitable = String(roi.time).toLowerCase()!=="no rentable";
   const equilibriumUnits =
     project.getEquilibriumMetrics().monthlyEquilibriumUnits;
   const equilibriumAmount =
