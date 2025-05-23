@@ -5,9 +5,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 interface EmployeeListProps {
   employees: Employee[];
   onEdit?: (employee: Employee) => void;
+   onDelete?: (asset: Employee) => void;
 }
 
-export default function EmployeeTable({ employees, onEdit }: EmployeeListProps) {
+export default function EmployeeTable({ employees, onEdit, onDelete }: EmployeeListProps) {
   return (
     <View>
       <View style={styles.header}>
@@ -16,7 +17,7 @@ export default function EmployeeTable({ employees, onEdit }: EmployeeListProps) 
         <Text style={styles.cell}>Salario</Text>
       </View>
       {employees.map((employee) => (
-        <Pressable key={employee.id} onPress={() => onEdit?.(employee)}>
+        <Pressable key={employee.id} onLongPress={()=> onDelete?.(employee)} onPress={() => onEdit?.(employee)}>
           <View style={styles.row}>
             <Text style={styles.cell}>{employee.position}</Text>
             <Text style={styles.cell}>{employee.headCount}</Text>

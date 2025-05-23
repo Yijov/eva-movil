@@ -5,9 +5,10 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 interface ProductListProps {
   products: Product[];
   onEdit: (product: Product) => void;
+  onDelete?: (asset: Product) => void;
 }
 
-export default function ProductList({ products, onEdit }: ProductListProps) {
+export default function ProductList({ products, onEdit, onDelete }: ProductListProps) {
   return (
     <View>
       <View style={styles.header}>
@@ -19,7 +20,7 @@ export default function ProductList({ products, onEdit }: ProductListProps) {
         <Text style={styles.cell}>Proyectado</Text>
       </View>
       {products.map((item) => (
-        <TouchableOpacity key={item.id} onPress={() => onEdit(item)}>
+        <TouchableOpacity key={item.id} onLongPress={()=> onDelete?.(item)} onPress={() => onEdit(item)}>
           <View style={styles.row}>
             <Text style={styles.cell}>{item.name}</Text>
             <Text style={styles.cell}>${item.cost.toFixed(2)}</Text>

@@ -93,8 +93,8 @@ export class Project {
     };
   }
 
-  public getROI(): Roi {
-    return new Roi(this.getCashFlow(12), this.getBudget(3));
+  public getROI(budgetMonths:number=3): Roi {
+    return new Roi(this.getCashFlow(12), this.getBudget(budgetMonths));
   }
 
   private getProductsMetrics = () => {

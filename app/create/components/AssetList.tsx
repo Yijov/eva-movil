@@ -5,9 +5,11 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 interface AssetListProps {
   assets: Asset[];
   onEdit?: (asset: Asset) => void;
+  onDelete?: (asset: Asset) => void;
 }
 
-export default function AssetList({ assets, onEdit }: AssetListProps) {
+export default function AssetList({ assets, onEdit, onDelete }: AssetListProps) {
+
   return (
     <View>
       <View style={styles.header}>
@@ -17,7 +19,7 @@ export default function AssetList({ assets, onEdit }: AssetListProps) {
         <Text style={styles.cell}>Total</Text>
       </View>
       {assets.map((asset) => (
-        <Pressable key={asset.id} onPress={() => onEdit?.(asset)}>
+        <Pressable key={asset.id} onLongPress={()=> onDelete?.(asset)} onPress={() => onEdit?.(asset)}>
           <View style={styles.row}>
             <Text style={styles.cell}>{asset.name}</Text>
             <Text style={styles.cell}>${asset.cost.toFixed(2)}</Text>

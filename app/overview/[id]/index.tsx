@@ -1,115 +1,171 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useRouter } from "expo-router";
-import { useState } from "react";
-import { Button, ScrollView, StyleSheet, TextInput, View } from "react-native";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+  BackHandler,
+  Button,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 import { useProject } from "../../../hooks/useProject";
-
+import { formatCurrency } from "../../../utils";
 
 export default function ProjectOverviewPage() {
-  
   const project = useProject();
   const router = useRouter();
   const [cashFlowMonths, setCashFlowMonths] = useState("12");
   const [budgetMonths, setBudgetMonths] = useState("3");
 
-  if (!project)  {
-   return null  };
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        router.replace("/"); // Always navigate to home page
+        return true; // Prevent default back behavior
+      };
 
-   const cashFlow = project.getCashFlow(Number(cashFlowMonths));
-   const budget = project.getBudget(Number(budgetMonths));
-   const roi = project.getROI();
-   const IsProjectProfitable= !Number.isNaN(roi.investment)
-   const equilibriumUnits = project.getEquilibriumMetrics().monthlyEquilibriumUnits*Number(cashFlowMonths);
-   const equilibriumAmount = project.getEquilibriumMetrics().monthlyEquilibriumAmount* Number(cashFlowMonths);
-   
-    
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress
+      );
+
+      return () => subscription.remove();
+    }, [router])
+  );
+
+  if (!project) return null;
+
+  const cashFlow = project.getCashFlow(Number(cashFlowMonths));
+  const budget = project.getBudget(Number(budgetMonths));
+  const roi = project.getROI(Number(budgetMonths));
+  const IsProjectProfitable = !Number.isNaN(roi.investment);
+  const equilibriumUnits =
+    project.getEquilibriumMetrics().monthlyEquilibriumUnits;
+  const equilibriumAmount =
+    project.getEquilibriumMetrics().monthlyEquilibriumAmount;
+
   return (
     <ScrollView style={styles.container}>
-      {/* Info del proyecto */}
+      {/* Project title */}
       <ThemedText type="title">{project.name.toUpperCase()}</ThemedText>
 
-      {/* ROI */}
-       <Section title="KPI">
+      {/* KPI Section */}
+      <Section title="KPI">
         <Row label="Tiempo de retorno" value={roi.time} />
-        <Row label="Inversión Inicial" value={IsProjectProfitable ? `$${ Number(roi.investment)?.toFixed(2)}`: roi.investment} />
-        <Row label="Unidades equ. mensual" value={IsProjectProfitable ? Math.round(equilibriumUnits): "n/a"} />
-        <Row label="Monto equ. mensual" value={IsProjectProfitable ? `$${equilibriumAmount.toFixed(2)}` : "n/a"} />
-      </Section> 
+        <Row
+          label="Inversión Inicial"
+          value={
+            IsProjectProfitable
+              ? `$${formatCurrency(roi.investment)}`
+              : roi.investment
+          }
+        />
+        <Row
+          label="Unidades equ. mensual"
+          value={IsProjectProfitable ? Math.round(equilibriumUnits) : "n/a"}
+        />
+        <Row
+          label="Monto equ. mensual"
+          value={
+            IsProjectProfitable
+              ? `$${formatCurrency(equilibriumAmount)}`
+              : "n/a"
+          }
+        />
+      </Section>
 
-      {/* Cash Flow */}
-     <Section title={`Flujo de efectivo (${cashFlowMonths} meses)`}>
-        <InputRow label="Meses" value={cashFlowMonths} onChangeText={setCashFlowMonths} />
-        <Row label="Ventas" value={`$${cashFlow.sales.toFixed(2)}`} />
-        <Row label="Costo de ventas" value={`$${cashFlow.salesCost.toFixed(2)}`} />
-        <Row label="Impuesto" value={`$${cashFlow.tax.toFixed(2)}`} />
-        <Row label="Gastos" value={`$${cashFlow.expenses.toFixed(2)}`} />
-        <Row label="Ingreso Neto" value={`$${cashFlow.netIncome.toFixed(2)}`} />
-      </Section> 
+      {/* Cash Flow Section */}
+      <Section
+        title={"Flujo de efectivo " + " (" + cashFlowMonths + " meses)"}
+        inputValue={cashFlowMonths}
+        onInputChange={setCashFlowMonths}
+      >
+        <Row label="Ventas" value={`$${formatCurrency(cashFlow.sales)}`} />
+        <Row
+          label="Costo de ventas"
+          value={`$${formatCurrency(cashFlow.salesCost)}`}
+        />
+        <Row label="Impuesto" value={`$${formatCurrency(cashFlow.tax)}`} />
+        <Row label="Gastos" value={`$${formatCurrency(cashFlow.expenses)}`} />
+        <Row
+          label="Ingreso Neto"
+          value={`$${formatCurrency(cashFlow.netIncome)}`}
+        />
+      </Section>
 
-
-      {/* Presupuesto */}
-     <Section title={`Presupuesto (${budgetMonths} meses)`}>
-        <InputRow label="Meses" value={budgetMonths} onChangeText={setBudgetMonths} />
-        <Row label="Capital de producción" value={`$${budget.productionCapital.toFixed(2)}`} />
-        <Row label="Sueldos" value={`$${budget.payroll.toFixed(2)}`} />
-        <Row label="Gastos Fijos" value={`$${budget.expenses.toFixed(2)}`} />
-        <Row label="Capital de activos" value={`$${budget.assetsCapital.toFixed(2)}`} />
+      {/* Budget Section */}
+      <Section
+        title={"Presupuesto" + " (" + budgetMonths + " meses)"}
+        inputValue={budgetMonths}
+        onInputChange={setBudgetMonths}
+      >
+        <Row
+          label="Capital de producción"
+          value={`$${formatCurrency(budget.productionCapital)}`}
+        />
+        <Row label="Sueldos" value={`$${formatCurrency(budget.payroll)}`} />
+        <Row
+          label="Gastos Fijos"
+          value={`$${formatCurrency(budget.expenses)}`}
+        />
+        <Row
+          label="Capital de activos"
+          value={`$${formatCurrency(budget.assetsCapital)}`}
+        />
         <Row
           label={`Contingencia (${project.contingencyPercent * 100}%)`}
-          value={`$${budget.contingency.toFixed(2)}`}
+          value={`$${formatCurrency(budget.contingency)}`}
         />
-        <Row label="Total" value={`$${budget.totalBudget.toFixed(2)}`} />
-      </Section> 
+        <Row label="Total" value={`$${formatCurrency(budget.totalBudget)}`} />
+      </Section>
 
-       <Button
+      <Button
         title="Editar"
         onPress={() => {
-         router.push(`../edit/${project.id}`);
+          router.push(`../edit/${project.id}`);
         }}
       />
     </ScrollView>
   );
 }
 
-// Section Wrapper
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+// Section Component
+function Section({
+  title,
+  inputValue,
+  onInputChange,
+  children,
+}: {
+  title: string;
+  inputValue?: string;
+  onInputChange?: (val: string) => void;
+  children: React.ReactNode;
+}) {
   return (
     <View style={styles.section}>
-      <ThemedText type="subtitle">{title}</ThemedText>
+      <View style={styles.sectionHeaderRow}>
+        <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+        {inputValue !== undefined && onInputChange && (
+          <TextInput
+            style={styles.inlineInput}
+            keyboardType="numeric"
+            value={inputValue}
+            onChangeText={onInputChange}
+          />
+        )}
+      </View>
       <View style={styles.sectionContent}>{children}</View>
     </View>
   );
 }
 
-// Table-like Row
+// Row Display
 function Row({ label, value }: { label: string; value: string | number }) {
   return (
     <View style={styles.row}>
       <ThemedText style={styles.rowLabel}>{label}</ThemedText>
       <ThemedText style={styles.rowValue}>{value}</ThemedText>
-    </View>
-  );
-}
-
-// Input Row
-function InputRow({
-  label,
-  value,
-  onChangeText,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (val: string) => void;
-}) {
-  return (
-    <View style={styles.inputRow}>
-      <ThemedText>{label}:</ThemedText>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={value}
-        onChangeText={onChangeText}
-      />
     </View>
   );
 }
@@ -120,9 +176,26 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 24,
+    borderWidth: 1,
+    borderRadius: 6,
+    borderColor: "lightgray",
+  },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#f0f0f0",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  sectionTitle: {
+    fontWeight: "600",
+    fontSize: 16,
   },
   sectionContent: {
-    paddingLeft: 8,
+    paddingTop: 8,
+    paddingHorizontal: 8,
     gap: 8,
   },
   row: {
@@ -137,18 +210,15 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: "right",
   },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-    gap: 8,
-  },
-  input: {
+  inlineInput: {
     borderBottomWidth: 1,
     borderColor: "#ccc",
     minWidth: 60,
-    paddingVertical: 4,
+    paddingVertical: 2,
     paddingHorizontal: 8,
     fontSize: 16,
+    textAlign: "right",
+    backgroundColor: "white",
+    borderRadius: 4,
   },
 });

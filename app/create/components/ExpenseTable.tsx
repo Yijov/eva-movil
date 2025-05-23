@@ -5,9 +5,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 interface ExpenseListProps {
   expenses: Expense[];
   onEdit?: (expense: Expense) => void;
+  onDelete?: (asset: Expense) => void;
 }
 
-export default function ExpenseList({ expenses, onEdit }: ExpenseListProps) {
+export default function ExpenseList({ expenses, onEdit , onDelete}: ExpenseListProps) {
   return (
     <View>
       <View style={styles.header}>
@@ -15,7 +16,7 @@ export default function ExpenseList({ expenses, onEdit }: ExpenseListProps) {
         <Text style={styles.cell}>Costo</Text>
       </View>
       {expenses.map((expense) => (
-        <Pressable key={expense.id} onPress={() => onEdit?.(expense)}>
+        <Pressable key={expense.id} onLongPress={()=> onDelete?.(expense)} onPress={() => onEdit?.(expense)}>
           <View style={styles.row}>
             <Text style={styles.cell}>{expense.name}</Text>
             <Text style={styles.cell}>${expense.amount.toFixed(2)}</Text>

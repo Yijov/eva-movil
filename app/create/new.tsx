@@ -2,15 +2,16 @@ import { Asset } from "@/models/Asset";
 import { Employee } from "@/models/Employee";
 import { Expense } from "@/models/Expense";
 import { Product } from "@/models/Product";
-import { Project } from "@/models/Project"; // Assuming you have a Project model
+import { Project } from "@/models/Project";
+import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
   Alert,
-  Button,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { ProjectRepository } from "../../services/persistence";
@@ -32,6 +33,7 @@ export default function NewProjectScreen({
   initialProject,
   isEditing = false,
 }: Props) {
+  const router=useRouter();
   const [projectName, setProjectName] = useState(initialProject?.name ?? "");
   const [products, setProducts] = useState<Product[]>(
     initialProject?.products ?? []
@@ -95,27 +97,74 @@ export default function NewProjectScreen({
     setEmployeeModalVisible(false);
   };
 
-  const handleSubmit = async () => {
-    if (!projectName.trim()) {
-      Alert.alert("Validation", "El nombre del proyecto es requerido.");
-      return;
-    }
+    const handleRemove= (item:Asset|Product|Employee|Expense) => {
+        Alert.alert(
+          "Delete Project",
+          `Are you sure you want to delete this item?`,
+          [
+            { text: "Cancel", style: "cancel" },
+            {
+              text: "Delete",
+              style: "destructive",
+              onPress: () => {
+                if(item instanceof Asset){
+                  const filtered= assets.filter(a=> a.id !== item.id)
+                    setAssets(filtered)
+                }
 
-    const project = new Project(
-      initialProject?.id || undefined,
-      projectName,
-      assets,
-      products,
-      expenses,
-      employees
-    );
+                 if(item instanceof Product){
+                  const filtered= products.filter(a=> a.id !== item.id)
+                  setProducts(filtered)
+                }
 
-    await persistence.save(project);
-    Alert.alert(
-      "Projecta Guardado",
-      isEditing ? "Cambios guardados exitosamente." : "Nuevo proyecto creado."
-    );
-  };
+                if(item instanceof Employee){
+                  const filtered= employees.filter(a=> a.id !== item.id)
+                  setEmployees(filtered)
+                }
+
+                if(item instanceof Expense){
+                  const filtered= expenses.filter(a=> a.id !== item.id)
+                  setExpenses(filtered)
+                }
+             
+              },
+            },
+          ]
+        );
+      };
+
+const handleSubmit = async () => {
+  if (!projectName.trim()) {
+    Alert.alert("Validation", "El nombre del proyecto es requerido.");
+    return;
+  }
+
+  const project = new Project(
+    initialProject?.id || undefined,
+    projectName,
+    assets,
+    products,
+    expenses,
+    employees
+  );
+
+  await persistence.save(project);
+
+  Alert.alert(
+    "Proyecto Guardado",
+    isEditing ? "Cambios guardados exitosamente." : "Nuevo proyecto creado.",
+    [
+      {
+        text: "OK",
+        onPress: () => {
+          // ✅ Your follow-up function here
+          router.push(`../overview/${project.id}`);
+          // You can navigate, reset state, etc.
+        },
+      },
+    ]
+  );
+};
 
   return (
     <ScrollView style={styles.container}>
@@ -130,63 +179,83 @@ export default function NewProjectScreen({
         style={styles.input}
       />
 
-      <Text style={styles.sectionTitle}>Productos</Text>
-      <Button
-        title="Agregar Producto"
-        onPress={() => {
-          setProductToEdit(null);
-          setProductModalVisible(true);
-        }}
-      />
+      {/* Productos */}
+      <View style={styles.sectionHeaderRow}>
+        <Text style={styles.sectionTitle}>Productos</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setProductToEdit(null);
+            setProductModalVisible(true);
+          }}
+        >
+          <Text style={styles.addIcon}>＋</Text>
+        </TouchableOpacity>
+      </View>
       <ProductList
         products={products}
+        onDelete={handleRemove}
         onEdit={(p: Product) => {
           setProductToEdit(p);
           setProductModalVisible(true);
         }}
       />
 
-      <Text style={styles.sectionTitle}>Activos</Text>
-      <Button
-        title="Agregar Activo"
-        onPress={() => {
-          setAssetToEdit(null);
-          setAssetModalVisible(true);
-        }}
-      />
+      {/* Activos */}
+      <View style={styles.sectionHeaderRow}>
+        <Text style={styles.sectionTitle}>Activos</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setAssetToEdit(null);
+            setAssetModalVisible(true);
+          }}
+        >
+          <Text style={styles.addIcon}>＋</Text>
+        </TouchableOpacity>
+      </View>
       <AssetList
         assets={assets}
+        onDelete={handleRemove}
         onEdit={(a: Asset) => {
           setAssetToEdit(a);
           setAssetModalVisible(true);
         }}
       />
 
-      <Text style={styles.sectionTitle}>Gastos</Text>
-      <Button
-        title="Agregar Gasto"
-        onPress={() => {
-          setExpenseToEdit(null);
-          setExpenseModalVisible(true);
-        }}
-      />
+      {/* Gastos */}
+      <View style={styles.sectionHeaderRow}>
+        <Text style={styles.sectionTitle}>Gastos</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setExpenseToEdit(null);
+            setExpenseModalVisible(true);
+          }}
+        >
+          <Text style={styles.addIcon}>＋</Text>
+        </TouchableOpacity>
+      </View>
       <ExpenseList
         expenses={expenses}
+        onDelete={handleRemove}
         onEdit={(e: Expense) => {
           setExpenseToEdit(e);
           setExpenseModalVisible(true);
         }}
       />
 
-      <Text style={styles.sectionTitle}>Empleados</Text>
-      <Button
-        title="Agregar Empleado"
-        onPress={() => {
-          setEmployeeToEdit(null);
-          setEmployeeModalVisible(true);
-        }}
-      />
+      {/* Empleados */}
+      <View style={styles.sectionHeaderRow}>
+        <Text style={styles.sectionTitle}>Empleados</Text>
+        <TouchableOpacity
+          onPress={() => {
+            setEmployeeToEdit(null);
+            setEmployeeModalVisible(true);
+          }}
+        >
+          <Text style={styles.addIcon}>＋</Text>
+        </TouchableOpacity>
+      </View>
       <EmployeeTable
+        onDelete={handleRemove}
         employees={employees}
         onEdit={(e: Employee) => {
           setEmployeeToEdit(e);
@@ -194,8 +263,10 @@ export default function NewProjectScreen({
         }}
       />
 
+      {/* Botón Guardar */}
       <View style={styles.saveButton}>
-        <Button
+        <TouchableOpacity
+          onPress={handleSubmit}
           disabled={
             !expenses.length ||
             !products.length ||
@@ -203,9 +274,24 @@ export default function NewProjectScreen({
             !employees.length ||
             !projectName
           }
-          title={isEditing ? "Guardar Cambios" : "Guardar Proyecto"}
-          onPress={handleSubmit}
-        />
+          style={[
+            styles.saveButtonWrapper,
+            {
+              backgroundColor:
+                !expenses.length ||
+                !products.length ||
+                !assets.length ||
+                !employees.length ||
+                !projectName
+                  ? "#ccc"
+                  : "#007AFF",
+            },
+          ]}
+        >
+          <Text style={styles.saveButtonText}>
+            {isEditing ? "Guardar Cambios" : "Guardar Proyecto"}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Modals */}
@@ -267,12 +353,34 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    marginTop: 20,
-    marginBottom: 10,
     fontSize: 18,
     fontWeight: "600",
   },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  addIcon: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#007AFF",
+    paddingHorizontal: 10,
+  },
   saveButton: {
     marginVertical: 30,
+    alignItems: "center",
+  },
+  saveButtonWrapper: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 6,
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 16,
   },
 });
