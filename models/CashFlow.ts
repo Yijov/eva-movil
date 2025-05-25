@@ -8,7 +8,7 @@ export class CashFlow {
   public netIncome: number;
   constructor( months: number,  project: Project) {
     this.sales = project.monthlyGrossSales * months;
-    this.expenses = project.monthlyPayroll + project.monthlyExpense * months;
+    this.expenses = (project.monthlyPayroll + project.monthlyExpense) * months;
     this.salesCost = project.monthlySalesCost * months;
     this.tax = project.monthlySalesTax * months;
     this.netIncome =
